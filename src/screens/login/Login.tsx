@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Image, Text, VStack, Box, Button, Link } from "native-base";
 import { TouchableOpacity } from "react-native";
 import Title from "../../components/Title";
@@ -5,8 +6,8 @@ import TextField from '../../components/TextField'
 import Logo from '../../assets/logo/Dinner_alert.png'
 
 import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from "../../services/FirebaseConfig";
-import { useState } from "react";
+import { auth, db } from "../../services/FirebaseConfig";
+import { doc, getDoc } from 'firebase/firestore';
 
 type LoginProps = {
   navigation: {
@@ -22,20 +23,30 @@ export default function Login({ navigation }: LoginProps) {
     navigation.navigate("FormRegister");
   }
 
-  const handleLogin = () => {
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        navigation.navigate("ChooseTablesScreen");
-        console.log('Usuário logado:', user.uid);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error('Erro ao fazer login:', errorMessage);
-      });
-  };
+  const handleLogin = async () => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      console.log('Usuário logado:', user.uid);
 
+      // Verificar se o usuário tem numTables definido no Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const numTables = userData.numTables || '';
+        if (numTables !== '') {
+          navigation.navigate('Tables', { numTables: parseInt(numTables, 10) });
+        } else {
+          navigation.navigate('ChooseTablesScreen');
+        }
+      } else {
+        navigation.navigate('ChooseTablesScreen');
+      }
+    } catch (error) {
+      const errorMessage = error.message;
+      console.error('Erro ao fazer login:', errorMessage);
+    }
+  };
 
   return (
     <VStack alignItems="center" flex={1} p={5} justifyContent='center' bg='white'>

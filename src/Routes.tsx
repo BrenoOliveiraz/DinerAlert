@@ -7,6 +7,7 @@ import Login from './screens/login/Login';
 import Tabs from './tabs'; //TODO: uma tab com chat
 import ChooseTablesScreen from './screens/chooseTableScreen/chooseTableScreen';
 import TablesScreen from './tabs/tableScreen/TableScreen';
+import InitialScreen from './screens/InitialScreen/InitialScreen';
 
 
 const Tab = createNativeStackNavigator();
@@ -16,6 +17,8 @@ export default function Routes() {
   return (
     <NavigationContainer>
         <Tab.Navigator>
+            
+            <Tab.Screen options={{headerShown: false}} name="InitialScreen" component={InitialScreen} />
             <Tab.Screen options={{headerShown: false}} name="Login" component={Login} />
             <Tab.Screen options={{headerShown: false}} name="FormRegister" component={FormRegister} />
             <Tab.Screen options={{headerShown: false}} name="ChooseTablesScreen" component={ChooseTablesScreen} />

@@ -12,7 +12,7 @@ const ChooseTablesScreen: React.FC<ChooseTablesProps> = ({ navigation }) => {
   const [estabelecimento, setEstabelecimento] = useState('');
 
 
-  useEffect(() => {
+  useEffect(() => { //fetch para capturar e guardar o nome do estabelecimento
     const fetchUserData = async () => {
       const user = auth.currentUser;
       if (user) {
@@ -38,17 +38,19 @@ const ChooseTablesScreen: React.FC<ChooseTablesProps> = ({ navigation }) => {
       return;
     }
 
-    const user = auth.currentUser;
-    if (user) {
+
+    //certifica de puxar o usuário logado através do auth
+    const user = auth.currentUser; 
+    if (user) { //se tiver usuário logado, ele vai fazer o updatte no firestore
       try {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
+        const userDocRef = doc(db, 'users', user.uid); // Referência para o documento do usuário no Firestore
+        const userDoc = await getDoc(userDocRef); //req get pro documento para fazer a lógica do update do doc principal
         if (userDoc.exists()) {
           await updateDoc(userDocRef, {
             numTables: parseInt(numTables),
           });
         } else {
-          await setDoc(userDocRef, {
+          await setDoc(userDocRef, { //seta novo documento, caso n exista usuário
             email: user.email,
             estabelecimento: estabelecimento || '', 
             nome: user.displayName || '',
